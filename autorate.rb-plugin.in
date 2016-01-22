@@ -1,0 +1,9 @@
+[RB Plugin]
+Loader=python
+Module=autorate
+IAge=1
+_Name=Autorate
+_Description=Automatically updates song rating and playcount based on a percentage of the song being played.
+Authors=John Daiker <daikerjohn@gmail.com>
+Copyright=Copyright © 2009 John Daiker
+Website=http://www.johndaiker.com/
