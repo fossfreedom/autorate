@@ -25,17 +25,15 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
 
-
-import gobject, gtk
-import gconf
+from gi.repository import GConf, Gtk, GObject
 from os import system, path
 
 class AutorateConfigureDialog (object):
 	def __init__(self, builder_file, gconf_keys):
-		self.gconf = gconf.client_get_default()
+		self.gconf = GConf.Client.get_default()
 		self.gconf_keys = gconf_keys
 
-		builder = gtk.Builder()
+		builder = Gtk.Builder()
 		builder.add_from_file(builder_file)
 			
 		self.dialog = builder.get_object("preferences_dialog")
@@ -57,13 +55,13 @@ class AutorateConfigureDialog (object):
 
 
 	def dialog_response(self, dialog, response):
-		if response == gtk.RESPONSE_OK:
+		if response == Gtk.ResponseType.OK:
 			self.set_values()
 			self.dialog.hide()
-		elif response == gtk.RESPONSE_CANCEL or response == gtk.RESPONSE_DELETE_EVENT:
+		elif response == Gtk.ResponseType.CANCEL or response == Gtk.ResponseType.DELETE_EVENT:
 			self.dialog.hide()
 		else:
-			print "unexpected response type"
+			print("unexpected response type")
 
 
 	def set_values(self):
@@ -78,24 +76,24 @@ class AutorateConfigureDialog (object):
 
 		thre = self.threshold.get_value()
 
-		self.gconf.set_bool(self.gconf_keys['update_rate'], rate)
-		self.gconf.set_bool(self.gconf_keys['update_playcount'], playcount)
-		self.gconf.set_float(self.gconf_keys['threshold'], thre)
+		self.GConf.set_bool(self.gconf_keys['update_rate'], rate)
+		self.GConf.set_bool(self.gconf_keys['update_playcount'], playcount)
+		self.GConf.set_float(self.gconf_keys['threshold'], thre)
 
 	def choose_callback(self, widget):
 		def response_handler(widget, response):
-			if response == gtk.RESPONSE_OK:
+			if response == Gtk.ResponseType.OK:
 				path = self.chooser.get_filename()
 				self.chooser.destroy()
 				self.path_display.set_text(path)
 			else:
 				self.chooser.destroy()
 
-		buttons = (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE,
-				gtk.STOCK_OK, gtk.RESPONSE_OK)
-		self.chooser = gtk.FileChooserDialog(title=_("Choose lyrics folder..."),
+		buttons = (Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE,
+				Gtk.STOCK_OK, Gtk.ResponseType.OK)
+		self.chooser = Gtk.FileChooserDialog(title=_("Choose lyrics folder..."),
 					parent=None,
-					action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
+					action=Gtk.FileChooserAction.SELECT_FOLDER,
 					buttons=buttons)
 		self.chooser.connect("response", response_handler)
 		self.chooser.set_modal(True)
@@ -107,15 +105,15 @@ class AutorateConfigureDialog (object):
 	
 
 	def get_prefs_new (self):
-		rt = gconf.client_get_default().get_bool(self.gconf_keys['update_rate'])
+		rt = GConf.Client.get_default().get_bool(self.gconf_keys['update_rate'])
 		if rt is None:
 			rt = True
 
-		pc = gconf.client_get_default().get_bool(self.gconf_keys['update_playcount'])
+		pc = GConf.Client.get_default().get_bool(self.gconf_keys['update_playcount'])
 		if pc is None:
 			pc = True
 
-		th = gconf.client_get_default().get_float(self.gconf_keys['threshold'])
+		th = GConf.Client.get_default().get_float(self.gconf_keys['threshold'])
 		if th is None:
 			th = 0.80
 

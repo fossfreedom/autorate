@@ -1,9 +1,9 @@
 import rb
 import rhythmdb
 import time
-import gconf
+from gi.repository import GConf
 
-from AutorateConfigureDialog import AutorateConfigureDialog
+from .AutorateConfigureDialog import AutorateConfigureDialog
 
 gconf_keys = {	'update_rate' : '/apps/rhythmbox/plugins/autorate/update_rate',
 		'update_playcount': '/apps/rhythmbox/plugins/autorate/update_playcount',
@@ -16,7 +16,7 @@ class Autorate(rb.Plugin):
 		rb.Plugin.__init__(self)
 
 	def activate(self, shell):
-		print "activating autorate plugin"
+		print("activating autorate plugin")
 		self.db = shell.props.db
 		self.current_entry = None
 		self.prev_entry = None
@@ -25,13 +25,13 @@ class Autorate(rb.Plugin):
 		self.prev_elap = 0
 		self.state = 'paused'
 
-		self.do_rate = gconf.client_get_default().get_bool(gconf_keys['update_rate'])
-		self.do_pc = gconf.client_get_default().get_bool(gconf_keys['update_playcount'])
-		self.pc_thresh = gconf.client_get_default().get_float(gconf_keys['threshold'])
+		self.do_rate = GConf.Client.get_default().get_bool(gconf_keys['update_rate'])
+		self.do_pc = GConf.Client.get_default().get_bool(gconf_keys['update_playcount'])
+		self.pc_thresh = GConf.Client.get_default().get_float(gconf_keys['threshold'])
 
-		print self.do_rate
-		print self.do_pc
-		print str(self.pc_thresh)
+		print(self.do_rate)
+		print(self.do_pc)
+		print(str(self.pc_thresh))
 
 		# Reference the shell player
 		sp = shell.props.shell_player
@@ -61,7 +61,7 @@ class Autorate(rb.Plugin):
 
 
 	def deactivate(self, shell):
-		print "deactivating autorate plugin"
+		print("deactivating autorate plugin")
 		# Disconnect signals
 		sp = shell.props.shell_player
 		sp.disconnect(self.psc_id)
@@ -106,7 +106,7 @@ class Autorate(rb.Plugin):
 	def calc_maxcount(self):
 		self.max_count = 0
 		self.db.entry_foreach(self.get_playcount_per_entry)
-		print "Max count: " + str(self.max_count)
+		print("Max count: " + str(self.max_count))
 
 	def get_playcount_per_entry(self, ent):
 		pc = self.get_entry_play_count(ent)
@@ -162,20 +162,20 @@ class Autorate(rb.Plugin):
 
 
 	def set_play_count(self, ent, newpc):
-		print "Setting play-count to: " + str(newpc)
+		print("Setting play-count to: " + str(newpc))
 		self.db.set(ent, rhythmdb.PROP_PLAY_COUNT, newpc)
 		return 0
 
 
 	def set_last_played(self, ent):
 		t = time.time()
-		print "Setting last-played to: " + str(t)
-		self.db.set(ent, rhythmdb.PROP_LAST_PLAYED, long(t))
+		print("Setting last-played to: " + str(t))
+		self.db.set(ent, rhythmdb.PROP_LAST_PLAYED, int(t))
 		return 0
 
 
 	def set_rating(self, ent, newrt):
-		print "Setting rating to: " + str(newrt)
+		print("Setting rating to: " + str(newrt))
 		self.db.set(ent, rhythmdb.PROP_RATING, newrt)
 		return 0
 
@@ -205,11 +205,11 @@ class Autorate(rb.Plugin):
 		self.current_entry = entry
 
 		if (self.state == 'paused'):
-			print "We were paused: Do not count the current time"
+			print("We were paused: Do not count the current time")
 		else:
 			self.prev_elap += time.time() - self.start
 
-		print "Elapsed: " + str(self.prev_elap)
+		print("Elapsed: " + str(self.prev_elap))
 
 		# Extract songinfo from the current entry
 		self.get_songinfo_from_entry()
